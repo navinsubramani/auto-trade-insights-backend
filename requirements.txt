@@ -1,0 +1,6 @@
+fastapi[standard]
+apscheduler
+
+requests
+yfinance
+pandas

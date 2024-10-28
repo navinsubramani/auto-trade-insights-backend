@@ -1,0 +1,1 @@
+web: hypercorn main.py:app --bind 0.0.0.0:${PORT} --workers 3

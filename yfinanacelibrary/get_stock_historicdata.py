@@ -17,7 +17,7 @@ def get_stock_historicdata(COMPANY_LIST, STOCK_PERIOD, STOCK_INTERVAL):
     # get the historical data for the tickers in a for loop and append the data to a dataframe with the ticker as the column name   
 
     # download the historical data for the tickers
-    index_data = yf.download(tickers, period=STOCK_PERIOD, interval=STOCK_INTERVAL)
+    index_data = yf.download(tickers, period=STOCK_PERIOD, interval=STOCK_INTERVAL, threads=False)
 
     # If the data has a NAN value, use the previous row value to fill it (backward fill)
     index_data = index_data.bfill()

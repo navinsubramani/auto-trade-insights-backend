@@ -1,5 +1,6 @@
 fastapi[standard]
 apscheduler
+uvicorn
 
 requests
 yfinance

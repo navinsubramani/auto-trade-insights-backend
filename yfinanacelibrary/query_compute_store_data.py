@@ -3,7 +3,7 @@ import pandas as pd
 
 from yfinanacelibrary.get_index_metadata import get_index_metadata
 from yfinanacelibrary.get_stock_historicdata import get_stock_historicdata
-from yfinanacelibrary.compute_stock_data import get_normalized_stockdata
+from yfinanacelibrary.compute_stock_data import get_normalized_stockdata, get_stock_momentum_data
 
 
 def query_compute_store_data():
@@ -40,5 +40,8 @@ def query_compute_store_data():
         normalized_stockdata = get_normalized_stockdata(index, index_list, stock_data, cash_total_weightage)
         indexs_metadata[index]["normalized_stockdata"] = normalized_stockdata
 
-    return indexs_metadata, stock_data
+    # Calculate the momentum of the stocks
+    stock_momentum_data = get_stock_momentum_data(stock_data.iloc[::-1])
+
+    return indexs_metadata, stock_data, stock_momentum_data
     

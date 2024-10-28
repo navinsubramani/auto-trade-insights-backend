@@ -16,13 +16,15 @@ scheduler = BackgroundScheduler()
 # Temporary in-memory storage for stock data
 indexs_metadata = {}
 stock_data = pd.DataFrame()
+momentum_data = pd.DataFrame()
 
 # Function to fetch stock data
 def fetch_market_data():
     global stock_data
     global indexs_metadata
+    global momentum_data
     try:
-        indexs_metadata, stock_data = query_compute_store_data()
+        indexs_metadata, stock_data, momentum_data = query_compute_store_data()
 
     except requests.RequestException as e:
         print(f"Error fetching stock data: {e}")
@@ -86,6 +88,16 @@ async def get_normalized_stockdata(index: str):
     output.to_csv(buffer, index=True)
     buffer.seek(0)
     return Response(content=buffer.getvalue(), media_type="text/csv")
+
+@app.get("/stockmomentumdata")
+async def get_stock_momentum_data():
+    # convert the output to json where the index is the key and the value is the normalized stock data
+    output = momentum_data
+    buffer = io.StringIO()
+    output.to_csv(buffer, index=True)
+    buffer.seek(0)
+    return Response(content=buffer.getvalue(), media_type="text/csv")
+
 
 # Run the app
 if __name__ == "__main__":

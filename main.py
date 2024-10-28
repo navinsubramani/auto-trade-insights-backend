@@ -5,8 +5,12 @@ import pandas as pd
 import requests
 from datetime import datetime
 import io
+import multitasking
 
 from yfinanacelibrary.query_compute_store_data import query_compute_store_data
+
+# Set max threads to 1 to force single-threaded mode
+multitasking.set_max_threads(1)
 
 app = FastAPI()
 
@@ -41,7 +45,7 @@ def fetch_market_data_duringmarkethours():
 async def lifespan(app: FastAPI):
     # Start scheduler and fetch initial data on startup
     fetch_market_data()  # Fetch initial data
-    scheduler.add_job(fetch_market_data_duringmarkethours, "interval", minutes=1)  # Run every 1 minute
+    scheduler.add_job(fetch_market_data_duringmarkethours, "interval", minutes=2)  # Run every 1 minute
     scheduler.start()
     
     try:

@@ -5,12 +5,8 @@ import pandas as pd
 import requests
 from datetime import datetime
 import io
-import multitasking
 
 from yfinanacelibrary.query_compute_store_data import query_compute_store_data
-
-# Set max threads to 1 to force single-threaded mode
-multitasking.set_max_threads(1)
 
 app = FastAPI()
 

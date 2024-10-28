@@ -14,6 +14,8 @@ def get_stock_historicdata(COMPANY_LIST, STOCK_PERIOD, STOCK_INTERVAL):
     # Create a space separated string of the tickers from the dataframe
     tickers = " ".join(COMPANY_LIST)
 
+    # get the historical data for the tickers in a for loop and append the data to a dataframe with the ticker as the column name   
+
     # download the historical data for the tickers
     index_data = yf.download(tickers, period=STOCK_PERIOD, interval=STOCK_INTERVAL)
 

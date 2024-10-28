@@ -1,7 +1,7 @@
-fastapi[standard]
-apscheduler
-uvicorn
+fastapi[standard] == 0.115.4
+apscheduler == 3.10.4
+uvicorn == 0.32.0
 
-requests
-yfinance
-pandas
+requests == 2.32.3
+yfinance == 0.2.48
+pandas == 2.2.3

@@ -31,8 +31,9 @@ def fetch_market_data():
 def fetch_market_data_duringmarkethours():
     # Fetch market data every 1 minute during market hours
     # Run the function only during the week day and 9AM to 5PM EDT
-    #print(datetime.now().weekday(), datetime.now().hour)
-    if datetime.now().weekday() < 5 and datetime.now().hour >= 9 and datetime.now().hour < 17:
+    # 9AM to 5PM EDT is 1PM to 9PM UTC & Weekdays
+    current_time = datetime.now()
+    if (current_time.weekday() < 5) and (current_time.hour >= 13) and (current_time.hour < 21):
         fetch_market_data()
 
 
@@ -41,7 +42,7 @@ def fetch_market_data_duringmarkethours():
 async def lifespan(app: FastAPI):
     # Start scheduler and fetch initial data on startup
     fetch_market_data()  # Fetch initial data
-    scheduler.add_job(fetch_market_data_duringmarkethours, "interval", minutes=2)  # Run every 1 minute
+    scheduler.add_job(fetch_market_data_duringmarkethours, "interval", minutes=3)  # Run every 1 minute
     scheduler.start()
     
     try:

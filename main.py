@@ -55,6 +55,13 @@ async def lifespan(app: FastAPI):
 app.router.lifespan_context = lifespan
 
 
+# endpoint for the main page
+@app.get("/")
+def read_root():
+    return {
+        "message": "Welcome to the Stock Market Data API. Use the /stock endpoint to get stock data and /indexdata/{index}/metadata endpoint to get index metadata."
+    }
+
 # Endpoint to get stock data
 @app.get("/stock")
 def get_stock_data():

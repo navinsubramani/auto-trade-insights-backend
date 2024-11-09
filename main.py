@@ -27,7 +27,7 @@ def fetch_market_data():
     global momentum_data
     global stock_analysis_data
     try:
-        #indexs_metadata, stock_data, momentum_data = query_compute_store_data()
+        indexs_metadata, stock_data, momentum_data = query_compute_store_data()
         stock_analysis_data = query_stock_analysis()
 
     except requests.RequestException as e:
@@ -47,8 +47,7 @@ def fetch_options_data():
     global sell_options_data
     # Fetch options data
     try:
-        #sell_options_data = query_options_data()
-        pass
+        sell_options_data = query_options_data()
 
     except requests.RequestException as e:
         print(f"Error fetching options data: {e}")

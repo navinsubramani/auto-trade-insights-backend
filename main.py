@@ -6,7 +6,7 @@ import requests
 from datetime import datetime
 import io
 
-from yfinanacelibrary.query_compute_store_data import query_compute_store_data, query_options_data, query_options_data_for_single_stock
+from yfinanacelibrary.query_compute_store_data import query_compute_store_data, query_options_data, query_options_data_for_single_stock, query_stock_analysis
 
 app = FastAPI()
 
@@ -18,14 +18,17 @@ indexs_metadata = {}
 stock_data = pd.DataFrame()
 momentum_data = pd.DataFrame()
 sell_options_data = pd.DataFrame()
+stock_analysis_data = pd.DataFrame()
 
 # Function to fetch stock data
 def fetch_market_data():
     global stock_data
     global indexs_metadata
     global momentum_data
+    global stock_analysis_data
     try:
-        indexs_metadata, stock_data, momentum_data = query_compute_store_data()
+        #indexs_metadata, stock_data, momentum_data = query_compute_store_data()
+        stock_analysis_data = query_stock_analysis()
 
     except requests.RequestException as e:
         print(f"Error fetching stock data: {e}")
@@ -44,7 +47,8 @@ def fetch_options_data():
     global sell_options_data
     # Fetch options data
     try:
-        sell_options_data = query_options_data()
+        #sell_options_data = query_options_data()
+        pass
 
     except requests.RequestException as e:
         print(f"Error fetching options data: {e}")
@@ -143,6 +147,14 @@ async def get_stock_options_data(company: str):
 
     return response
 
+@app.get("/stockanalysis")
+async def get_stock_analysis_data():
+    # convert the output to json where the index is the key and the value is the normalized stock data
+    output = stock_analysis_data
+    buffer = io.StringIO()
+    output.to_csv(buffer, index=True)
+    buffer.seek(0)
+    return Response(content=buffer.getvalue(), media_type="text/csv")
 
 # Run the app
 if __name__ == "__main__":

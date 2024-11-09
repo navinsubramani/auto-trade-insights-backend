@@ -1,5 +1,6 @@
 import yfinance as yf
 import pandas as pd
+from datetime import datetime
 
 from yfinanacelibrary.get_index_metadata import get_index_metadata
 from yfinanacelibrary.get_stock_historicdata import get_stock_historicdata
@@ -176,3 +177,46 @@ def query_options_data_for_single_stock(TICKER_NAME):
             information[key] = str(information[key])
 
     return call_df, put_df, information
+
+
+def query_stock_analysis():
+    # Read the Sector details of the companies
+    sector_list = pd.read_csv('index_company_details.csv')
+    sector_list = sector_list[["Company", "Updated Sector"]]
+
+    #print(sector_list)
+
+    # Create a space separated string of the tickers from the dataframe
+    tickers = " ".join(sector_list["Company"].values)
+
+    # Get the current date and the start of the year
+    end_date = datetime.now().strftime('%Y-%m-%d')
+    start_date = datetime(datetime.now().year, 1, 1).strftime('%Y-%m-%d')
+
+    # download the historical data for the tickers
+    index_data = yf.download(tickers, start=start_date)
+
+    # If the data has a NAN value, use the previous row value to fill it (backward fill)
+    index_data = index_data.bfill()
+    # Reverse the order of the rows in the dataframe
+    index_data = index_data.iloc[::-1]
+
+    analysis_data = pd.DataFrame()
+
+    # Get first two rows of the data as it will give the recent days difference
+    today_data = index_data["Close"].iloc[0] - index_data["Close"].iloc[1]
+    analysis_data["Today"] = today_data.round(2)
+    analysis_data["Today %"] = (today_data/index_data["Close"].iloc[1]*100).round(2)
+
+    # Get the difference between the start of the year and the current date
+    year_data = index_data["Close"].iloc[0] - index_data["Close"].iloc[-1]
+    analysis_data["YTD"] = year_data.round(2)
+    analysis_data["YTD %"] = (year_data/index_data["Close"].iloc[-1]*100).round(2)
+
+    # Get the difference between the last 20 trading days and the current date
+    month_data = index_data["Close"].iloc[0] - index_data["Close"].iloc[20]
+    analysis_data["20TD"] = month_data.round(2)
+
+    return analysis_data
+
+

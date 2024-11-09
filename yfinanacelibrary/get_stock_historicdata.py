@@ -1,8 +1,6 @@
 import yfinance as yf
 import pandas as pd
 
-
-INDEX = "SPY"
 STOCK_PERIOD = "5d"
 STOCK_INTERVAL = "1m"
 

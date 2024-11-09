@@ -6,7 +6,7 @@ import requests
 from datetime import datetime
 import io
 
-from yfinanacelibrary.query_compute_store_data import query_compute_store_data
+from yfinanacelibrary.query_compute_store_data import query_compute_store_data, query_options_data, query_options_data_for_single_stock
 
 app = FastAPI()
 
@@ -17,6 +17,7 @@ scheduler = BackgroundScheduler()
 indexs_metadata = {}
 stock_data = pd.DataFrame()
 momentum_data = pd.DataFrame()
+sell_options_data = pd.DataFrame()
 
 # Function to fetch stock data
 def fetch_market_data():
@@ -39,12 +40,34 @@ def fetch_market_data_duringmarkethours():
         fetch_market_data()
 
 
+def fetch_options_data():
+    global sell_options_data
+    # Fetch options data
+    try:
+        sell_options_data = query_options_data()
+
+    except requests.RequestException as e:
+        print(f"Error fetching options data: {e}")
+
+
+def fetch_options_data_duringmarkethours():
+    # Fetch options data every 1 minute during market hours
+    # Run the function only during the week day and 9AM to 5PM EDT
+    # 9AM to 5PM EDT is 1PM to 9PM UTC & Weekdays
+    current_time = datetime.now()
+    if (current_time.weekday() < 5) and (current_time.hour >= 13) and (current_time.hour < 21):
+        fetch_options_data()
+
 # Lifespan context manager for startup and shutdown events
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Start scheduler and fetch initial data on startup
     fetch_market_data()  # Fetch initial data
-    scheduler.add_job(fetch_market_data_duringmarkethours, "interval", minutes=3)  # Run every 1 minute
+    print("Startup stock data is fetched")
+    fetch_options_data()  # Fetch initial data
+    print("Startup options data is fetched")
+    scheduler.add_job(fetch_market_data_duringmarkethours, "interval", minutes=3)  # Run every 3 minute
+    scheduler.add_job(fetch_options_data_duringmarkethours, "interval", minutes=5)  # Run every 5 minute
     scheduler.start()
     
     try:
@@ -97,6 +120,28 @@ async def get_stock_momentum_data():
     output.to_csv(buffer, index=True)
     buffer.seek(0)
     return Response(content=buffer.getvalue(), media_type="text/csv")
+
+@app.get("/selloptionsdata")
+async def get_sell_options_data():
+    # convert the output to json where the index is the key and the value is the normalized stock data
+    output = sell_options_data
+    buffer = io.StringIO()
+    output.to_csv(buffer, index=True)
+    buffer.seek(0)
+    return Response(content=buffer.getvalue(), media_type="text/csv")
+
+@app.get("/stockoptionsdata/{company}")
+async def get_stock_options_data(company: str):
+    # convert the output to json where the index is the key and the value is the normalized stock data
+    call_df, put_df, info = query_options_data_for_single_stock(company)
+
+    response = {
+        "Call Options": call_df,
+        "Put Options": put_df,
+        "Information": info
+    }
+
+    return response
 
 
 # Run the app

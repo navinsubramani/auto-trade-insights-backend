@@ -67,7 +67,7 @@ async def lifespan(app: FastAPI):
     fetch_options_data()  # Fetch initial data
     print("Startup options data is fetched")
     scheduler.add_job(fetch_market_data_duringmarkethours, "interval", minutes=3)  # Run every 3 minute
-    scheduler.add_job(fetch_options_data_duringmarkethours, "interval", minutes=5)  # Run every 5 minute
+    scheduler.add_job(fetch_options_data_duringmarkethours, "interval", minutes=10)  # Run every 10 minute
     scheduler.start()
     
     try:
